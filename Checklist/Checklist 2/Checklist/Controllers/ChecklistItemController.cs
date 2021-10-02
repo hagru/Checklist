@@ -1,4 +1,6 @@
-﻿using Checklist.Models;
+﻿using Checklist.Interfaces;
+using Checklist.Models;
+using Checklist.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,47 +13,25 @@ namespace Checklist.Controllers
     [Route("checklist-items")]
     public class ChecklistItemController : Controller
     {
-        private static List<CheckItem> Checklist = new List<CheckItem>
+        private ICheckItemRepository Repository { get; }
+
+        public ChecklistItemController(ICheckItemRepository repository)
         {
-            new CheckItem
-            {
-                Id = "0",
-                Owner = "Christian",
-                Content = "Støvsuge"
-            },
-
-            new CheckItem
-            {
-                Id = "1",
-                Owner = "Christian",
-                Content = "Støvsuge"
-            },
-
-            new CheckItem
-            {
-                Id = "2",
-                Owner = "Christian",
-                Content = "Støvsuge"
-            },
-
-            new CheckItem
-            {
-                Id = "3",
-                Owner = "Christian",
-                Content = "Støvsuge"
-            }
-        };
+            Repository = repository;
+        }
 
         [HttpGet]
-        public IEnumerable<CheckItem> Get()
+        public async Task<ActionResult<CheckItem>> Get()
         {
-            return Checklist;
+            return Ok(await Repository.GetAll());
+
         }
 
         [HttpGet("{id}")]
-        public ActionResult<CheckItem> GetById(string id)
+        public async Task<ActionResult<CheckItem>> GetById(string id)
         {
-            var item = Checklist.Where(e => e.Id == id).FirstOrDefault();
+            var item = await Repository.GetById(id);
+
             if (item == null)
                 return NotFound();
 
@@ -59,17 +39,16 @@ namespace Checklist.Controllers
         }
 
         [HttpPost]
-        public ActionResult<CheckItem> Create(CheckItem item)
+        public async Task<ActionResult<CheckItem>> Create(CheckItem item)
         {
-            Checklist.Add(item);
-            return Ok(item);
+            return Ok(await Repository.Create(item));
+
         }
 
         [HttpDelete("{id}")]
         public ActionResult Delete(string id)
         {
-            var item = Checklist.Where(e => e.Id == id).FirstOrDefault();
-            Checklist.Remove(item);
+            Repository.Delete(id);
             return Ok();
         }
     }

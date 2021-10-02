@@ -1,4 +1,6 @@
+using Checklist.Interfaces;
 using Checklist.Models;
+using Checklist.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -27,7 +29,12 @@ namespace Checklist
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Register databases
             services.AddDbContext<MemoryDatabaseContext>();
+            services.AddEntityFrameworkInMemoryDatabase();
+
+            // Register repositories
+            services.AddScoped<ICheckItemRepository, CheckItemRepository>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -56,9 +63,6 @@ namespace Checklist
             {
                 endpoints.MapControllers();
             });
-
-            var context = app.ApplicationServices.GetService<MemoryDatabaseContext>();
-            AddInMemoryTestData(context);
         }
 
         private async static void AddInMemoryTestData(MemoryDatabaseContext context)
