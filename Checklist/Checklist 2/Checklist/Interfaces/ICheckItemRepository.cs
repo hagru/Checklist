@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Checklist.Interfaces
 {
-    interface ICheckItemRepository
+    public interface ICheckItemRepository
     {
         Task<IReadOnlyCollection<CheckItem>> GetAll();
         Task<CheckItem> GetById(string id);
         Task<CheckItem> Create(CheckItem item);
-        Task Delete();
+        Task Delete(string id);
     }
 }
